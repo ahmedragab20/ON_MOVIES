@@ -1,20 +1,24 @@
 <template>
-  <div class="flex items-center justify-center h-screen gap-3">
-    <pre>
-      <span class="text-start">
-        {{ res }}
-      </span>
-    </pre>
+  <div
+    v-if="movies?.length === 0"
+    class="flex flex-col items-center justify-center h-screen gap-4 p-3"
+  >
+    <h3>Seems you don't have any movies to list</h3>
+    <Button to="/add" btn-style="primary"> Add New Movie </Button>
   </div>
+  <div v-else-if="movies.length">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</div>
 </template>
 
 <script setup lang="ts">
-import { vFetch } from 'very-good-fetch'
-import { onMounted, ref } from 'vue'
+import Button from '@/components/Base/Button.vue'
+import { computed, onMounted } from 'vue'
+import { useStore } from 'vuex'
+import { key } from '../stores'
 
-const res = ref()
+const store = useStore(key)
+const movies = computed(() => store.state.movies)
 
-onMounted(async () => {
-  res.value = await vFetch('https://jsonplaceholder.typicode.com/todos/1')
+onMounted(() => {
+  console.log(movies.value)
 })
 </script>
