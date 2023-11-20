@@ -1,6 +1,6 @@
 <template>
   <button
-    class="px-4 py-2 duration-100 border rounded-lg active:scale-95 active:translate-y-0.5"
+    class="px-4 py-2 duration-100 border rounded-lg active:scale-[0.98] active:translate-y-0.5"
     :class="[
       { 'bg-primary text-white border-0': btnStyle === 'primary' },
       {
