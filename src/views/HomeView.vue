@@ -11,14 +11,15 @@
 
 <script setup lang="ts">
 import Button from '@/components/Base/Button.vue'
-import { computed, onMounted } from 'vue'
+import { getMovies } from '@/utils/movies'
+import { computed, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { key } from '../stores'
 
 const store = useStore(key)
 const movies = computed(() => store.state.movies)
 
-onMounted(() => {
-  console.log(movies.value)
+onBeforeMount(() => {
+  store.dispatch('setMovies', getMovies())
 })
 </script>

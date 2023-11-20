@@ -126,7 +126,7 @@
       </div>
 
       <!-- action button -->
-      <div class="pt-2 mt-2 border-t">
+      <div class="pt-2 mt-2">
         <Button @click="addNewMovie" btn-style="primary" class="w-full rounded-xl">
           <span class="mx-1">
             <i class="bi bi-plus-circle"></i>
@@ -245,14 +245,21 @@
 
 <script setup lang="ts">
 import Button from '@/components/Base/Button.vue'
+// @ts-ignore
 import Dialog from '@/components/Base/Dialog.vue'
 import Input from '@/components/Base/Input.vue'
 import type { IActor } from '@/types'
 import { uuid } from '@/utils/helpers'
 
+import { getMovies } from '@/utils/movies'
 import { useForm } from 'vee-validate'
 import { computed, ref, shallowReactive, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import { date, number, object, string } from 'yup'
+import { key } from '../stores'
+const store = useStore(key)
+const router = useRouter()
 
 const {
   values: basicInfo,
@@ -369,6 +376,20 @@ const removeActor = (index: number) => {
 }
 
 const addNewMovie = () => {
-  console.log('will be running very soon...')
+  const movies = getMovies()
+  console.log(movies)
+
+  store.dispatch('setMovies', [
+    {
+      id: uuid(),
+      title: title.value.value,
+      description: description.value.value || '',
+      year: year.value.value,
+      actors: actors.value
+    },
+    ...movies
+  ])
+
+  router.push('/')
 }
 </script>
