@@ -1,7 +1,9 @@
 <template>
   <div class="flex flex-col items-center justify-center h-screen">
     <div class="mb-5">
-      <h2 class="text-2xl font-semibold text-slate-800">Add a new movie</h2>
+      <h2 class="text-2xl font-semibold text-slate-800">
+        Edit <strong class="capitalize text-primary">{{ movie?.title }}</strong> Movie
+      </h2>
     </div>
     <div class="w-11/12 px-3 py-2 border sm:p-4 rounded-2xl sm:w-96 md:w-[480px]">
       <div class="pb-1 mb-2 border-b">
@@ -126,23 +128,35 @@
       </div>
 
       <!-- action button -->
-      <div class="pt-2 mt-2">
+      <div class="flex gap-3 pt-2 mt-2 sm:gap-5">
         <Button
-          @click="addNewMovie"
+          @click="submitEdition"
+          :disabled="!submitEditionValid"
           btn-style="primary"
-          class="w-full rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
-          :disabled="!addingMovieValid"
+          class="w-full sm:w-1/2 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <span class="mx-1">
-            <i class="bi bi-plus-circle"></i>
+            <i class="bi bi-pencil-square"></i>
           </span>
-          Add New Movie
+          Submit Edition
+        </Button>
+        <Button
+          @dblclick="deleteMovie"
+          class="w-full text-red-500 border-red-500 sm:w-1/2 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed hover:bg-red-50"
+        >
+          <span class="mx-1">
+            <i class="bi bi-pencil-square"></i>
+          </span>
+          Delete
+          <small>
+            <i>(double click)</i>
+          </small>
         </Button>
       </div>
     </div>
   </div>
 
-  <!-- dialog -->
+  <!-- actors dialog -->
   <Dialog v-model="actorDialog">
     <div class="w-11/12 bg-white rounded-xl sm:w-96">
       <div class="p-3 pb-1 text-lg font-semibold border-b sm:p-4">Actor Info</div>
@@ -250,21 +264,26 @@
 
 <script setup lang="ts">
 import Button from '@/components/Base/Button.vue'
+import { getMovie } from '@/utils/movies'
+import { useRoute } from 'vue-router'
 // @ts-ignore
 import Dialog from '@/components/Base/Dialog.vue'
 import Input from '@/components/Base/Input.vue'
 import type { IActor } from '@/types'
 import { uuid } from '@/utils/helpers'
 
-import { getMovies } from '@/utils/movies'
 import { useForm } from 'vee-validate'
-import { computed, ref, shallowReactive, watch } from 'vue'
+import { computed, onBeforeMount, ref, shallowReactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { date, number, object, string } from 'yup'
 import { key } from '../stores'
 const store = useStore(key)
 const router = useRouter()
+
+const route = useRoute()
+const movieId: string = typeof route.params.movieId === 'string' ? route.params.movieId : '0'
+const movie = getMovie(movieId)
 
 const {
   values: basicInfo,
@@ -380,7 +399,7 @@ const removeActor = (index: number) => {
   actors.value.splice(index, 1)
 }
 
-const addingMovieValid = computed(() => {
+const submitEditionValid = computed(() => {
   return (
     title.value.value &&
     year.value.value &&
@@ -389,20 +408,28 @@ const addingMovieValid = computed(() => {
   )
 })
 
-const addNewMovie = () => {
-  const movies = getMovies()
-
-  store.dispatch('setMovies', [
-    {
-      id: uuid(),
-      title: title.value.value,
-      description: description.value.value || '',
-      year: year.value.value,
-      actors: actors.value
-    },
-    ...movies
-  ])
+const submitEdition = () => {
+  store.dispatch('editMovie', {
+    id: movieId,
+    title: title.value.value,
+    description: description.value.value,
+    year: year.value.value,
+    actors: actors.value
+  })
 
   router.push('/')
 }
+
+const deleteMovie = () => {
+  // no need to send the new data even if it was different, the movie id is the one needed and it doesn't change
+  store.dispatch('removeMovie', movie)
+  router.push('/')
+}
+
+onBeforeMount(() => {
+  title.value.value = movie?.title
+  description.value.value = movie?.description
+  year.value.value = movie?.year
+  actors.value = movie?.actors || []
+})
 </script>

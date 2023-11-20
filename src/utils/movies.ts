@@ -1,6 +1,8 @@
 /**
  * @module
  * 📦 Movie Controller...
+ *
+ * moved the movies crud inside a separate module to make it easier to move the logic around independently.
  */
 
 import type { IMovie } from '@/types'
@@ -10,6 +12,14 @@ import type { IMovie } from '@/types'
  */
 export function getMovies(): IMovie[] {
   return JSON.parse(localStorage.getItem('movies') || '[]')
+}
+
+/**
+ * get movie by movie-id
+ */
+export function getMovie(movieId: string): IMovie | undefined {
+  const movies = getMovies()
+  return movies?.find(m => m.id === movieId)
 }
 
 /**
@@ -28,7 +38,7 @@ export function updateMovies(movies: IMovie[]): IMovie[] {
  */
 export function updateMovie(movie: IMovie): IMovie[] {
   const movies = getMovies()
-  const index = movies.findIndex((m) => m.title === movie.title)
+  const index = movies.findIndex((m) => m.id === movie.id)
   if (index !== -1) {
     movies[index] = movie
   }
@@ -41,7 +51,7 @@ export function updateMovie(movie: IMovie): IMovie[] {
  */
 export function deleteMovie(movie: IMovie): IMovie[] {
   const movies = getMovies()
-  const index = movies.findIndex((m) => m.title === movie.title)
+  const index = movies.findIndex((m) => m.id === movie.id)
   if (index !== -1) {
     movies.splice(index, 1)
   }
